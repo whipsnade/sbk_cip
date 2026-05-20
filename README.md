@@ -24,4 +24,12 @@ View your app in AI Studio: https://ai.studio/apps/dfb11f31-906f-4d96-a8e4-28017
    `npm run build`
 2. Deploy the generated `dist/` folder to GitHub Pages.
 
-> If you publish this repository to GitHub Pages, make sure you deploy the built `dist/` output rather than the raw source files. The project is configured to use `GH_PAGES` mode for the repo path `/sbk_cip/`.
+## Deploy to GitHub Pages
+
+This repository includes a GitHub Actions workflow at `.github/workflows/deploy.yml`.
+
+1. Push to the `main` branch.
+2. In GitHub, open **Settings > Pages**.
+3. Set **Build and deployment > Source** to **GitHub Actions**.
+
+The workflow runs `npm ci`, builds the Vite app with `GH_PAGES=true`, and deploys the generated `dist/` folder. Do not use **Deploy from a branch** for the raw repository files, because GitHub Pages cannot serve `src/main.tsx` as a browser-ready JavaScript module.
