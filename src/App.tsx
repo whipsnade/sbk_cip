@@ -6,6 +6,7 @@ import { AdminDashboard, AdminOrderList, AdminNewOrder, AdminOrderDetail, AdminR
 import { AdminOrg, AdminRoles, AdminWorkflow } from './pages/SettingsPages';
 import { ApproverList } from './pages/Approver';
 import { SupplierSmsLink, SupplierForm, SupplierSuccess } from './pages/Supplier';
+import { SupplierWebCompany, SupplierWebPersonnel, SupplierWebApprovals } from './pages/SupplierWeb';
 import { GuardHome, GuardVerify } from './pages/Guard';
 
 function AppContent() {
@@ -42,6 +43,10 @@ function AppContent() {
       
       {view === 'APPROVER_LIST' && <ApproverList />}
       
+      {view === 'SUPPLIER_WEB_COMPANY' && <SupplierWebCompany />}
+      {view === 'SUPPLIER_WEB_PERSONNEL' && <SupplierWebPersonnel />}
+      {view === 'SUPPLIER_WEB_APPROVALS' && <SupplierWebApprovals />}
+
       {view === 'GUARD_HOME' && <GuardHome />}
       {view === 'GUARD_VERIFY' && <GuardVerify />}
       {view === 'GUARD_EXIT' && (

@@ -26,6 +26,11 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
     GUARD: [
       { id: 'GUARD_HOME', label: '门卫核验', icon: ShieldCheck },
       { id: 'GUARD_EXIT', label: '离厂登记', icon: LogOut },
+    ],
+    SUPPLIER_WEB: [
+      { id: 'SUPPLIER_WEB_COMPANY', label: '企业资质与信息', icon: Building },
+      { id: 'SUPPLIER_WEB_PERSONNEL', label: '人员与车辆管理', icon: Users },
+      { id: 'SUPPLIER_WEB_APPROVALS', label: '资质审批跟进', icon: FileText }
     ]
   };
 
@@ -56,7 +61,7 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
           ))}
         </nav>
         <div className="p-6 border-t border-[#2D4D44] flex items-center justify-between text-xs text-white opacity-50">
-          <span>{role === 'BUSINESS' ? '业务部门' : role === 'APPROVER' ? '审批人' : '门卫账号'}</span>
+          <span>{role === 'BUSINESS' ? '业务部门' : role === 'APPROVER' ? '审批人' : role === 'SUPPLIER_WEB' ? '供应商后台' : '门卫账号'}</span>
           <button onClick={handleLogout} className="hover:opacity-100 hover:text-white transition-opacity">
             <LogOut size={16} />
           </button>
@@ -68,19 +73,19 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shrink-0 shadow-sm z-10">
           <div className="flex items-center space-x-2 text-sm text-gray-500 font-medium">
-            <span>{role === 'BUSINESS' ? '管理后台' : role === 'APPROVER' ? '审批管理' : '门卫核验模块'}</span>
+            <span>{role === 'BUSINESS' ? '管理后台' : role === 'APPROVER' ? '审批管理' : role === 'SUPPLIER_WEB' ? '供应商管理平台' : '门卫核验模块'}</span>
             <span>/</span>
             <span className="text-[#006241]">
-              {currentNav.find(n => n.id === view)?.label || '详情'}
+              {currentNav?.find(n => n.id === view)?.label || '详情'}
             </span>
           </div>
           <div className="flex items-center space-x-6">
             <div className="text-right text-xs">
-              <p className="font-bold text-[#1E3932]">昆山园区南门岗亭</p>
+              <p className="font-bold text-[#1E3932]">{role === 'SUPPLIER_WEB' ? '上海机械工程有限公司' : '昆山园区南门岗亭'}</p>
               <p className="text-gray-400">2023-10-24 14:30:05</p>
             </div>
             <div className="w-8 h-8 rounded-full bg-[#E4E3E0] flex items-center justify-center text-xs border border-gray-300 font-bold text-gray-700">
-               {role === 'BUSINESS' ? '业' : role === 'APPROVER' ? '审' : '卫'}
+               {role === 'BUSINESS' ? '业' : role === 'APPROVER' ? '审' : role === 'SUPPLIER_WEB' ? '供' : '卫'}
             </div>
           </div>
         </header>

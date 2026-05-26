@@ -1,4 +1,4 @@
-export type Role = 'BUSINESS' | 'APPROVER' | 'SUPPLIER' | 'GUARD';
+export type Role = 'BUSINESS' | 'APPROVER' | 'SUPPLIER' | 'GUARD' | 'SUPPLIER_WEB';
 
 export type OrderStatus = 'DRAFT' | 'PENDING_APPROVER' | 'REJECTED' | 'PENDING_SUPPLIER' | 'PENDING_GUARD' | 'IN_PROGRESS' | 'FINISHED';
 

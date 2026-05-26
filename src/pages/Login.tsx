@@ -20,7 +20,7 @@ export const LoginView: React.FC = () => {
           <p className="text-xl text-green-100 font-light tracking-wide opacity-80">承包商核验管理系统</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-in slide-in-from-bottom-8 fade-in duration-1000">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 animate-in slide-in-from-bottom-8 fade-in duration-1000">
           <RoleCard 
             icon={Briefcase} 
             title="管理后台" 
@@ -37,17 +37,24 @@ export const LoginView: React.FC = () => {
           />
           <RoleCard 
             icon={Truck} 
-            title="供应商端" 
+            title="供应商网页版" 
+            desc="提交资质、管理人员"
+            onClick={() => handleRoleSelect('SUPPLIER_WEB', 'SUPPLIER_WEB_COMPANY')}
+            delay="delay-[300ms]"
+          />
+          <RoleCard 
+            icon={Truck} 
+            title="供应商移动端" 
             desc="手机端填报人员车辆"
             onClick={() => handleRoleSelect('SUPPLIER', 'SUPPLIER_SMS')}
-            delay="delay-[300ms]"
+            delay="delay-[400ms]"
           />
           <RoleCard 
             icon={ShieldCheck} 
             title="门卫核验" 
             desc="核验身份、放行登记"
             onClick={() => handleRoleSelect('GUARD', 'GUARD_HOME')}
-            delay="delay-[400ms]"
+            delay="delay-[500ms]"
           />
         </div>
       </div>
