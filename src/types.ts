@@ -1,41 +1,67 @@
 export type Role = 'BUSINESS' | 'APPROVER' | 'SUPPLIER' | 'GUARD' | 'SUPPLIER_WEB';
 
-export type OrderStatus = 'DRAFT' | 'PENDING_APPROVER' | 'REJECTED' | 'PENDING_SUPPLIER' | 'PENDING_GUARD' | 'IN_PROGRESS' | 'FINISHED';
+export type ContractorStatus = 'DRAFT' | 'PENDING_INFO' | 'PENDING_REVIEW' | 'PENDING_PD' | 'QUALIFIED' | 'NEEDS_IMPROVEMENT' | 'RISK' | 'INACTIVE';
+export type ContractorType = 'LONG_TERM' | 'SHORT_TERM';
+
+export interface Contractor {
+  id: string; // YYYYMM + XX
+  name: string;
+  type: ContractorType;
+  status: ContractorStatus;
+  healthIndex: number;
+  contactName: string;
+  contactPhone: string;
+  creditCode: string;
+  nature: string;
+  scope: string;
+  certs: { name: string; expiry: string; url?: string }[];
+  workers: Worker[];
+  vehicles: Vehicle[];
+}
+
+export type OrderStatus = 'DRAFT' | 'PENDING_DEPT' | 'PENDING_AREA' | 'PENDING_EHS' | 'PENDING_SUPPLIER' | 'PENDING_GUARD' | 'IN_PROGRESS' | 'FINISHED' | 'REJECTED';
 
 export interface Worker {
   name: string;
   idCard: string;
   phone: string;
-  healthCert: string;
-  specialCert: string;
+  type: string; // 工种
   trained: boolean;
-  status: 'READY' | 'ENTERED' | 'EXITED';
+  trainingExpiry: string;
+  healthCert: string; // 有效 / 过期 / 无
+  healthCertExpiry: string;
+  specialCert: string;
+  status: 'READY' | 'ENTERED' | 'EXITED' | 'REJECTED';
   cardNo?: string;
-  abnormalReason?: string; // used for demonstrating exception scenarios
+  abnormalReason?: string;
 }
 
 export interface Vehicle {
   plate: string;
   type: string;
   driver: string;
+  isSpecial?: boolean;
+  desc?: string;
 }
 
 export interface Order {
-  id: string;
+  id: string; // YYYYMMDD + XX
+  contractorId: string;
+  supplier: string; // Contractor Name
   content: string;
-  type: string;
-  area: string;
+  area: string[];
   startTime: string;
   endTime: string;
-  supplier: string;
   status: OrderStatus;
   createdBy: string;
-  inviteCode?: string;
+  sbuxContact: string;
+  contractorContact: string;
+  safetyOfficers: string[];
   workers: Worker[];
   vehicles: Vehicle[];
-  risk?: string;
-  control?: string;
-  specialWork?: string;
-  specialMaterials?: string;
+  highRisk: boolean;
+  permits: string[];
+  ppe: string[];
+  inviteCode?: string;
   rejectReason?: string;
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Plus, Search, FileText, AlertTriangle, Users, Clock, ArrowRight } from 'lucide-react';
 
@@ -17,17 +17,23 @@ const StatusBadge: React.FC<{status: string}> = ({status}) => {
 }
 
 export const AdminDashboard = () => {
-  const { setView } = useAppContext();
+  const { setView, orders, contractors } = useAppContext();
+  
+  const todayOrders = orders.filter(o => o.startTime.startsWith('2023-10-24')).length;
+  const pendingOrders = orders.filter(o => o.status === 'PENDING_AREA' || o.status === 'PENDING_DEPT' || o.status === 'PENDING_EHS').length;
+  const activeWorkers = orders.flatMap(o => o.workers).filter(w => w.status === 'ENTERED').length;
+  const riskContractors = contractors.filter(c => c.status === 'RISK').length;
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 h-full">
+    <div className="space-y-6 animate-in fade-in duration-500 h-full overflow-y-auto pb-8">
       <h2 className="text-xl font-bold text-[#1E3932]">首页仪表盘</h2>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: '今日施工单', value: '12', icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-          { label: '待审批', value: '3', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
-          { label: '异常拦截', value: '1', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
-          { label: '当前在场', value: '28', icon: Users, color: 'text-[#006241]', bg: 'bg-[#F7F9F8]', border: 'border-[#006241]/20' },
+          { label: '今日施工单', value: todayOrders || '12', icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+          { label: '待审批单据', value: pendingOrders || '3', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
+          { label: '当前在场人员', value: activeWorkers || '28', icon: Users, color: 'text-[#006241]', bg: 'bg-[#F7F9F8]', border: 'border-[#006241]/20' },
+          { label: '风险承包商', value: riskContractors || '1', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
         ].map((stat, i) => (
           <div key={i} className={`bg-white p-5 rounded-lg border shadow-sm flex items-center justify-between ${stat.border}`}>
             <div>
@@ -41,19 +47,64 @@ export const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-sm font-bold text-[#1E3932] uppercase tracking-wider flex items-center">
-             <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
-             快捷操作
-          </h3>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+           <h3 className="text-sm font-bold text-[#1E3932] uppercase tracking-wider flex items-center mb-6">
+              <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
+              承包商健康指数分布
+           </h3>
+           <div className="space-y-4">
+              {[
+                { label: '卓越 (95-100)', count: 12, percent: '40%', color: 'bg-green-500' },
+                { label: '优秀 (90-94)', count: 8, percent: '25%', color: 'bg-[#006241]' },
+                { label: '良好 (80-89)', count: 5, percent: '15%', color: 'bg-blue-500' },
+                { label: '待改善 (70-79)', count: 3, percent: '10%', color: 'bg-yellow-500' },
+                { label: '风险 (<70)', count: 2, percent: '10%', color: 'bg-red-500' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center text-sm">
+                   <div className="w-28 text-xs font-bold text-gray-600">{item.label}</div>
+                   <div className="flex-1 h-3 bg-gray-100 rounded-full overflow-hidden flex">
+                      <div className={`h-full ${item.color}`} style={{ width: item.percent }}></div>
+                   </div>
+                   <div className="w-12 text-right font-mono font-bold text-[#1E3932]">{item.count}家</div>
+                </div>
+              ))}
+           </div>
+         </div>
+
+         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+           <h3 className="text-sm font-bold text-[#1E3932] uppercase tracking-wider flex items-center mb-6">
+              <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
+              待办与提醒
+           </h3>
+           <ul className="space-y-3 text-sm">
+             <li className="flex justify-between items-center p-3 bg-red-50 text-red-700 rounded border border-red-100">
+                <span className="font-bold flex items-center gap-2"><AlertTriangle size={16}/> 星建装饰工程有限公司 状态转为风险</span>
+                <button onClick={() => setView('ADMIN_CONTRACTORS')} className="text-xs font-bold underline">查看并限制入场</button>
+             </li>
+             <li className="flex justify-between items-center p-3 bg-orange-50 text-orange-700 rounded border border-orange-100">
+                <span className="font-bold flex items-center gap-2"><Clock size={16}/> 3张证件即将在7天内过期</span>
+                <button className="text-xs font-bold underline">查看清单</button>
+             </li>
+             <li className="flex justify-between items-center p-3 bg-blue-50 text-blue-700 rounded border border-blue-100">
+                <span className="font-bold flex items-center gap-2"><Users size={16}/> 15名待培训人员预计今日入场</span>
+                <button className="text-xs font-bold underline">安排线下培训</button>
+             </li>
+           </ul>
+         </div>
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <h3 className="text-sm font-bold text-[#1E3932] uppercase tracking-wider flex items-center mb-6">
+           <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
+           快捷操作
+        </h3>
         <div className="flex gap-4">
           <button onClick={() => setView('ADMIN_NEW_ORDER')} className="bg-[#006241] hover:bg-[#00754A] text-white px-5 py-2.5 rounded shadow flex items-center gap-2 text-sm font-bold transition-colors">
-            <Plus size={16} /> 新建施工单
+            <Plus size={16} /> 发起施工单申请
           </button>
-          <button onClick={() => setView('ADMIN_ORDER_LIST')} className="bg-[#F8F8F8] border border-gray-200 hover:bg-gray-100 text-[#1E3932] px-5 py-2.5 rounded shadow-sm flex items-center gap-2 text-sm font-bold transition-colors">
-            <Search size={16} /> 施工单查询
+          <button onClick={() => setView('ADMIN_CONTRACTORS')} className="bg-[#F8F8F8] border border-gray-200 hover:bg-gray-100 text-[#1E3932] px-5 py-2.5 rounded shadow-sm flex items-center gap-2 text-sm font-bold transition-colors">
+            <Search size={16} /> 承包商档案库
           </button>
         </div>
       </div>
@@ -109,7 +160,7 @@ export const AdminOrderList = () => {
                   <td className="p-3 font-bold">{o.id}</td>
                   <td className="p-3">{o.content}</td>
                   <td className="p-3 text-gray-600">{o.supplier}</td>
-                  <td className="p-3 text-gray-600">{o.area}</td>
+                  <td className="p-3 text-gray-600">{o.area.join(', ')}</td>
                   <td className="p-3 text-[11px] text-gray-500 whitespace-nowrap">{o.startTime.split(' ')[0]}<br/>至 {o.endTime.split(' ')[0]}</td>
                   <td className="p-3"><StatusBadge status={o.status} /></td>
                   <td className="p-3 text-right">
@@ -128,32 +179,51 @@ export const AdminOrderList = () => {
 export const AdminNewOrder = () => {
   const { setView, orders, setOrders } = useAppContext();
   
+  const [highRisk, setHighRisk] = useState(false);
+  const [selectedPermits, setSelectedPermits] = useState<string[]>([]);
+  const [selectedPpe, setSelectedPpe] = useState<string[]>(["安全帽", "安全鞋", "反光背心"]);
+
+  const ppeOptions = ["安全帽", "安全鞋", "反光背心", "安全眼镜", "安全带", "防割手套", "听力防护", "防尘口罩", "防有害气体口罩", "呼吸器", "防化手套", "防化服", "防飞溅护目镜", "面盾", "防电弧"];
+  const permitOptions = ["高处作业(>1.2米)", "动火作业", "吊装作业", "拆除或挖掘作业", "有限空间作业", "破管作业", "带电作业", "集群锁", "消防系统停用"];
+
+  const handleTogglePermit = (permit: string) => {
+    setSelectedPermits(prev => prev.includes(permit) ? prev.filter(p => p !== permit) : [...prev, permit]);
+  };
+
+  const handleTogglePpe = (ppe: string) => {
+    // Make helmet, shoes, vest mandatory
+    if (["安全帽", "安全鞋", "反光背心"].includes(ppe)) return; 
+    setSelectedPpe(prev => prev.includes(ppe) ? prev.filter(p => p !== ppe) : [...prev, ppe]);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newOrder = {
-      id: "WO-" + new Date().toISOString().slice(0,10).replace(/-/g,'') + "-008",
+      id: "20231101" + "08",
+      contractorId: "20231001",
       content: "新产线网络布线",
-      type: "弱电施工",
-      area: "新产线车间",
+      area: ["新产线车间"],
       startTime: "2023-11-01 08:00",
       endTime: "2023-11-05 18:00",
       supplier: "上海星联智造通讯",
-      status: "PENDING_APPROVER" as any,
+      status: "PENDING_DEPT" as any,
       createdBy: "业务部门A",
-      risk: "低风险",
-      control: "常规PPE",
-      specialWork: "否",
-      specialMaterials: "否",
+      sbuxContact: "刘伟",
+      contractorContact: "李强",
+      safetyOfficers: [],
+      highRisk,
+      permits: highRisk ? selectedPermits : [],
+      ppe: selectedPpe,
       workers: [],
       vehicles: []
     };
     setOrders([newOrder, ...orders]);
     setView('ADMIN_ORDER_LIST');
-    alert("提交成功，已流转至审批节点！");
+    alert("提交成功，已流转至业务部门经理审批！");
   }
 
   return (
-    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 max-w-4xl">
+    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 max-w-4xl h-full overflow-y-auto pb-8 pr-2">
       <div className="flex items-center gap-4">
         <button onClick={() => setView('ADMIN_DASHBOARD')} className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1 group">
            <ArrowRight className="rotate-180 group-hover:-translate-x-1 transition-transform" size={16} /> 返回
@@ -170,36 +240,36 @@ export const AdminNewOrder = () => {
               基本信息
             </h3>
             <div className="grid grid-cols-2 gap-6">
-              <div>
+              <div className="col-span-2">
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">作业内容 <span className="text-red-500">*</span></label>
                 <input required type="text" defaultValue="新产线网络布线" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">作业类型 <span className="text-red-500">*</span></label>
-                <select className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]">
-                  <option>弱电施工</option>
-                  <option>设备维修</option>
-                  <option>土建施工</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">施工区域 <span className="text-red-500">*</span></label>
-                <input required type="text" defaultValue="新产线车间" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">供应商选择 <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">供应商选择 (仅限合格) <span className="text-red-500">*</span></label>
                 <select className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]">
                   <option>上海星联智造通讯技术有限公司</option>
                   <option>上海机械工程有限公司</option>
                 </select>
               </div>
               <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">作业区域 (可多选) <span className="text-red-500">*</span></label>
+                <input required type="text" defaultValue="新产线车间, 配电房" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
+              </div>
+              <div>
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">开始时间 <span className="text-red-500">*</span></label>
                 <input required type="datetime-local" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">结束时间 <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">结束时间 (最长1周) <span className="text-red-500">*</span></label>
                 <input required type="datetime-local" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">SBUX 负责人 <span className="text-red-500">*</span></label>
+                <input required type="text" defaultValue="刘伟" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">承包商负责人 <span className="text-red-500">*</span></label>
+                <input required type="text" defaultValue="李强" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
               </div>
             </div>
           </section>
@@ -207,34 +277,47 @@ export const AdminNewOrder = () => {
           <section>
             <h3 className="text-sm font-bold text-[#1E3932] border-b border-gray-100 pb-2 mb-6 uppercase tracking-wider flex items-center">
               <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
-              安全与风险评估
+              高风险作业评估与 PPE
             </h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">风险等级</label>
-                <select className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]">
-                  <option>低风险</option>
-                  <option>中风险</option>
-                  <option>高风险</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase">控制措施</label>
-                <input type="text" defaultValue="常规PPE" className="w-full bg-[#F8F8F8] border border-gray-200 rounded px-3 py-2.5 focus:outline-none focus:border-[#006241] transition-shadow text-[#1E3932]" />
-              </div>
-              <div className="col-span-2 flex gap-8 p-4 bg-gray-50 border border-gray-200 rounded border-dashed">
+            <div className="space-y-6">
+              <div className="flex gap-8 p-4 bg-gray-50 border border-gray-200 rounded border-dashed">
                 <label className="flex items-center gap-2 text-[#1E3932] font-bold cursor-pointer text-sm">
-                  <input type="checkbox" className="accent-[#006241] w-4 h-4 cursor-pointer" /> 涉及特种作业 (高空/动火/受限空间)
+                  <input type="checkbox" checked={highRisk} onChange={e => setHighRisk(e.target.checked)} className="accent-[#006241] w-4 h-4 cursor-pointer" /> 是否涉及高风险作业？
                 </label>
-                <label className="flex items-center gap-2 text-[#1E3932] font-bold cursor-pointer text-sm">
-                  <input type="checkbox" className="accent-[#006241] w-4 h-4 cursor-pointer" /> 携带特殊化学物料
-                </label>
+              </div>
+
+              {highRisk && (
+                <div className="bg-orange-50 border border-orange-200 p-4 rounded">
+                  <label className="block text-xs font-bold text-orange-800 mb-3 uppercase tracking-wider">选择高风险作业许可证 (必须多选)</label>
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                     {permitOptions.map(p => (
+                       <label key={p} className="flex items-center gap-2 text-[#1E3932] text-sm cursor-pointer">
+                         <input type="checkbox" checked={selectedPermits.includes(p)} onChange={() => handleTogglePermit(p)} className="accent-[#006241] w-4 h-4" /> {p}
+                       </label>
+                     ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-3 uppercase tracking-wider">基础与特殊个人防护装备 (PPE)</label>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                   {ppeOptions.map(p => {
+                     const mandatory = ["安全帽", "安全鞋", "反光背心"].includes(p);
+                     return (
+                       <label key={p} className={`flex items-center gap-2 text-[#1E3932] text-sm ${mandatory ? 'opacity-80' : 'cursor-pointer'}`}>
+                         <input type="checkbox" disabled={mandatory} checked={selectedPpe.includes(p)} onChange={() => handleTogglePpe(p)} className="accent-[#006241] w-4 h-4" /> 
+                         {p} {mandatory && <span className="text-[10px] text-red-500 font-bold">*</span>}
+                       </label>
+                     );
+                   })}
+                </div>
               </div>
             </div>
           </section>
         </div>
 
-        <div className="p-6 bg-[#F8F8F8] border-t border-gray-200 flex justify-end gap-3">
+        <div className="p-6 bg-[#F8F8F8] border-t border-gray-200 flex justify-end gap-3 shrink-0">
           <button type="button" onClick={() => setView('ADMIN_ORDER_LIST')} className="px-6 py-2 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 font-bold transition-colors">取消草稿</button>
           <button type="submit" className="px-6 py-2 bg-[#006241] rounded text-white font-bold hover:bg-[#00754A] transition-colors shadow-sm">提交审批流程</button>
         </div>
@@ -270,7 +353,7 @@ export const AdminOrderDetail = () => {
               <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">单据编号</span><span className="font-bold text-[#1E3932]">{order.id}</span></div>
               <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">作业内容</span><span className="font-bold text-[#1E3932]">{order.content}</span></div>
               <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">供应商单位</span><span className="font-bold text-[#1E3932]">{order.supplier}</span></div>
-              <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">施工区域</span><span className="font-bold text-[#1E3932]">{order.area}</span></div>
+              <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">施工区域</span><span className="font-bold text-[#1E3932]">{order.area.join(', ')}</span></div>
               <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">施工起止时间</span><span className="font-bold text-[#1E3932]">{order.startTime} ~ {order.endTime}</span></div>
               <div><span className="text-xs text-gray-500 block mb-1 uppercase font-bold">业务发起人</span><span className="font-bold text-[#1E3932]">{order.createdBy}</span></div>
             </div>

@@ -74,14 +74,15 @@ export const GuardHome = () => {
 
 export const GuardVerify = () => {
   const { orders, currentOrderId, setView, updateOrder } = useAppContext();
+  const [localWorkers, setLocalWorkers] = useState(orders.find(o => o.id === currentOrderId)?.workers || []);
+
   const order = orders.find(o => o.id === currentOrderId);
-  
   if(!order) return <div>Invalid Order</div>;
 
-  const allClear = order.workers.every(w => w.trained && w.healthCert === "有效");
+  const allClear = localWorkers.every(w => w.trained && w.healthCert === "有效");
 
   const handlePass = () => {
-     updateOrder(order.id, { status: 'IN_PROGRESS' });
+     updateOrder(order.id, { status: 'IN_PROGRESS', workers: localWorkers });
      alert("已登记发卡，允许放行进厂！");
      setView('GUARD_HOME');
   };
@@ -91,7 +92,14 @@ export const GuardVerify = () => {
      setView('GUARD_HOME');
   }
 
-  // To simulate the two-column view, we reuse the left column from GuardHome, but read-only or same logic
+  const handleMarkTrained = (index: number) => {
+    const updated = [...localWorkers];
+    updated[index].trained = true;
+    updated[index].abnormalReason = '';
+    setLocalWorkers(updated);
+    alert("已录入线下培训通过记录！");
+  }
+
   const pendingEntry = orders.filter(o => o.status === 'PENDING_GUARD');
 
   return (
@@ -149,7 +157,7 @@ export const GuardVerify = () => {
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-400 mb-1">作业区域</p>
-            <p className="text-sm font-bold text-[#1E3932]">{order.area}</p>
+            <p className="text-sm font-bold text-[#1E3932]">{order.area.join(', ')}</p>
           </div>
         </div>
 
@@ -158,15 +166,15 @@ export const GuardVerify = () => {
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-sm font-bold flex items-center text-[#1E3932]">
               <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
-              核验人员名单 ({order.workers.length}人)
+              核验人员名单 ({localWorkers.length}人)
             </h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-             {order.workers.map((w,i) => {
+             {localWorkers.map((w,i) => {
                const isOk = w.trained && w.healthCert === "有效";
                return (
-                 <div key={i} className={`border p-4 rounded-lg relative overflow-hidden ${isOk ? 'border-[#006241] bg-[#F7F9F8]' : 'border-orange-300 bg-orange-50'}`}>
+                 <div key={i} className={`border p-4 rounded-lg relative overflow-hidden ${isOk ? 'border-[#006241] bg-[#F7F9F8]' : 'border-red-300 bg-red-50'}`}>
                    <div className="flex items-start space-x-4">
                      <div className="w-16 h-20 bg-gray-200 rounded overflow-hidden flex items-center justify-center text-gray-400 text-xs text-center border border-gray-300">
                        {isOk ? '证件照' : '未上传'}
@@ -180,7 +188,7 @@ export const GuardVerify = () => {
                            {w.healthCert === "有效" ? (
                              <span className="text-[#006241] font-bold">已验证</span>
                            ) : (
-                             <span className="text-red-500 font-bold italic">未上传</span>
+                             <span className="text-red-600 font-bold italic">{w.healthCert} (拦截)</span>
                            )}
                          </div>
                          {w.specialCert !== '无' && (
@@ -193,7 +201,7 @@ export const GuardVerify = () => {
                            {w.trained ? (
                              <span className="text-[#006241] font-bold">合格</span>
                            ) : (
-                             <span className="text-orange-500 font-bold">需现场培训</span>
+                             <span className="text-red-600 font-bold">已过期或未培训</span>
                            )}
                          </div>
                        </div>
@@ -202,14 +210,18 @@ export const GuardVerify = () => {
                    <div className="mt-4 flex gap-2">
                      {isOk ? (
                        <>
-                         <button className="flex-1 py-1.5 bg-[#006241] text-white text-[11px] font-bold rounded hover:bg-[#00754A]">核验通过</button>
-                         <button className="px-2 py-1.5 bg-white border border-gray-200 text-gray-500 text-[11px] rounded hover:bg-gray-50">拒绝</button>
+                         <button className="flex-1 py-1.5 bg-[#006241] text-white text-[11px] font-bold rounded hover:bg-[#00754A]">身份相符 ✓</button>
                        </>
                      ) : (
-                       <button className="flex-1 py-1.5 bg-orange-500 text-white text-[11px] font-bold rounded italic hover:bg-orange-600">补交材料 / 培训</button>
+                       <>
+                         {!w.trained && (
+                           <button onClick={() => handleMarkTrained(i)} className="flex-1 py-1.5 bg-[#006241] text-white text-[11px] font-bold rounded hover:bg-[#00754A]">录入线下培训</button>
+                         )}
+                         <button className="flex-1 py-1.5 bg-white border border-red-300 text-red-600 text-[11px] font-bold rounded">拒绝放行</button>
+                       </>
                      )}
                    </div>
-                   {isOk && <div className="absolute top-0 right-0 px-2 py-1 bg-[#006241] text-white text-[10px] rounded-bl-lg font-medium">证件齐全</div>}
+                   {isOk && <div className="absolute top-0 right-0 px-2 py-1 bg-[#006241] text-white text-[10px] rounded-bl-lg font-medium">满足条件</div>}
                  </div>
                )
              })}
@@ -245,7 +257,7 @@ export const GuardVerify = () => {
         <div className="p-6 bg-[#F8F8F8] border-t border-gray-100 rounded-b-lg flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 lg:gap-6">
              <label className="flex items-center space-x-2 text-xs font-bold cursor-pointer text-[#1E3932]">
-               <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#006241]" /> <span>已收押身份证 ({order.workers.length}张)</span>
+               <input type="checkbox" defaultChecked className="w-4 h-4 accent-[#006241]" /> <span>已收押身份证 ({localWorkers.length}张)</span>
              </label>
              <div className="flex items-center space-x-2">
                <span className="text-xs font-bold text-[#1E3932]">绑定卡号:</span>
@@ -253,13 +265,13 @@ export const GuardVerify = () => {
              </div>
           </div>
           <div className="flex space-x-3 self-end lg:self-auto">
-            <button onClick={handleIntercept} className="px-8 py-3 bg-white border border-[#006241] text-[#006241] font-bold rounded flex-1 lg:flex-none text-sm hover:bg-gray-50 transition-colors">
-              拒绝入园
+            <button onClick={handleIntercept} className="px-8 py-3 bg-white border border-red-500 text-red-600 font-bold rounded flex-1 lg:flex-none text-sm hover:bg-red-50 transition-colors">
+              拦截/拒绝入园
             </button>
             <button onClick={handlePass} disabled={!allClear} className={`px-12 py-3 font-bold rounded shadow-sm flex-1 lg:flex-none text-sm transition-colors ${
               allClear ? 'bg-[#006241] text-white hover:bg-[#00754A]' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}>
-              确认放行
+              确认发卡放行
             </button>
           </div>
         </div>

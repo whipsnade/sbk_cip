@@ -46,7 +46,7 @@ export const LoginView: React.FC = () => {
             icon={Truck} 
             title="供应商移动端" 
             desc="手机端填报人员车辆"
-            onClick={() => handleRoleSelect('SUPPLIER', 'SUPPLIER_SMS')}
+            onClick={() => handleRoleSelect('SUPPLIER', 'SUPPLIER_MOBILE_HOME')}
             delay="delay-[400ms]"
           />
           <RoleCard 

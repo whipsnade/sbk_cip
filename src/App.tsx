@@ -3,9 +3,10 @@ import { AppProvider, useAppContext } from './context/AppContext';
 import { LoginView } from './pages/Login';
 import { AdminLayout, MobileLayout } from './components/Layouts';
 import { AdminDashboard, AdminOrderList, AdminNewOrder, AdminOrderDetail, AdminReports } from './pages/Admin';
+import { AdminContractors, AdminContractorDetail } from './pages/AdminContractors';
 import { AdminOrg, AdminRoles, AdminWorkflow } from './pages/SettingsPages';
 import { ApproverList } from './pages/Approver';
-import { SupplierSmsLink, SupplierForm, SupplierSuccess } from './pages/Supplier';
+import { SupplierSmsLink, SupplierForm, SupplierSuccess, SupplierMobileHome, SupplierMobilePersonnel, SupplierMobileVehicles } from './pages/Supplier';
 import { SupplierWebCompany, SupplierWebPersonnel, SupplierWebApprovals } from './pages/SupplierWeb';
 import { GuardHome, GuardVerify } from './pages/Guard';
 
@@ -23,6 +24,9 @@ function AppContent() {
   if (role === 'SUPPLIER') {
     return (
       <MobileLayout>
+        {view === 'SUPPLIER_MOBILE_HOME' && <SupplierMobileHome />}
+        {view === 'SUPPLIER_MOBILE_PERSONNEL' && <SupplierMobilePersonnel />}
+        {view === 'SUPPLIER_MOBILE_VEHICLES' && <SupplierMobileVehicles />}
         {view === 'SUPPLIER_SMS' && <SupplierSmsLink />}
         {view === 'SUPPLIER_FORM' && <SupplierForm />}
         {view === 'SUPPLIER_SUCCESS' && <SupplierSuccess />}
@@ -33,6 +37,8 @@ function AppContent() {
   return (
     <AdminLayout>
       {view === 'ADMIN_DASHBOARD' && <AdminDashboard />}
+      {view === 'ADMIN_CONTRACTORS' && <AdminContractors />}
+      {view === 'ADMIN_CONTRACTOR_DETAIL' && <AdminContractorDetail />}
       {view === 'ADMIN_ORDER_LIST' && <AdminOrderList />}
       {view === 'ADMIN_NEW_ORDER' && <AdminNewOrder />}
       {view === 'ADMIN_ORDER_DETAIL' && <AdminOrderDetail />}

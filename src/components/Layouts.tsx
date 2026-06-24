@@ -12,9 +12,10 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
 
   const navItems = {
     BUSINESS: [
-      { id: 'ADMIN_DASHBOARD', label: '仪表盘', icon: LayoutDashboard },
+      { id: 'ADMIN_DASHBOARD', label: '首页仪表盘', icon: LayoutDashboard },
+      { id: 'ADMIN_CONTRACTORS', label: '承包商档案', icon: Users },
       { id: 'ADMIN_ORDER_LIST', label: '施工单管理', icon: ClipboardList },
-      { id: 'ADMIN_REPORTS', label: '报表查询', icon: FileText },
+      { id: 'ADMIN_REPORTS', label: '查询与报表', icon: FileText },
       { id: 'ADMIN_ORG', label: '组织架构', icon: Building },
       { id: 'ADMIN_ROLES', label: '权限设置', icon: UserCog },
       { id: 'ADMIN_WORKFLOW', label: '审批工作流', icon: Network },
