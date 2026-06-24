@@ -5,6 +5,9 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // GitHub Pages 项目页部署在 https://<user>.github.io/sbk_cip/ 下，
+    // 资源需要带仓库名前缀；本地开发(GH_PAGES 未设置)时使用根路径 '/'。
+    base: process.env.GH_PAGES === 'true' ? '/sbk_cip/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
