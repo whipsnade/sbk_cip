@@ -164,25 +164,49 @@ export const AdminRoles = () => {
 };
 
 export const AdminWorkflow = () => {
+  const [nodes, setNodes] = useState([
+    { id: 1, title: 'EHS与安保联合审批', desc: '评估风险等级并给出控制措施（会签）', tags: ['高风险必备'], approver: 'EHS经理, 安保队长' },
+    { id: 2, title: '供应商录入资料', desc: '通过短链接补充作业人员、特种资质及车辆', tags: [], approver: '供应商' }
+  ]);
+  const [editingNode, setEditingNode] = useState<any>(null);
+
+  const handleAddNode = () => {
+    const newNode = {
+      id: Date.now(),
+      title: '新审批节点',
+      desc: '请设置审批描述',
+      tags: [],
+      approver: '待分配'
+    };
+    setNodes([...nodes, newNode]);
+    setEditingNode(newNode);
+  };
+
+  const handleDeleteNode = (id: number) => {
+    setNodes(nodes.filter(n => n.id !== id));
+  };
+
+  const handleSaveNode = (e: React.FormEvent) => {
+    e.preventDefault();
+    setNodes(nodes.map(n => n.id === editingNode.id ? editingNode : n));
+    setEditingNode(null);
+  };
+
   return (
-    <div className="space-y-4 animate-in fade-in duration-500 flex flex-col h-full">
+    <div className="space-y-4 animate-in fade-in duration-500 flex flex-col h-full relative">
       <div className="flex justify-between items-center shrink-0">
         <div>
           <h2 className="text-xl font-bold text-[#1E3932]">审批流引擎</h2>
-          <p className="text-xs text-gray-500 mt-1">拖拽定义施工单流程节点与审批逻辑</p>
+          <p className="text-xs text-gray-500 mt-1">定义施工单流程节点与审批逻辑</p>
         </div>
         <div className="flex gap-3">
-           <button className="bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 px-4 py-2 rounded text-sm font-bold transition-colors shadow-sm">
-             恢复默认
-           </button>
            <button className="bg-[#006241] hover:bg-[#00754A] text-white px-4 py-2 rounded flex items-center gap-2 text-sm font-bold transition-colors shadow">
              保存并发布
            </button>
         </div>
       </div>
 
-      <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-inner flex flex-col flex-1 overflow-hidden relative p-8">
-         
+      <div className="bg-gray-50 border border-gray-200 rounded-lg shadow-inner flex flex-col flex-1 overflow-y-auto relative p-8">
          <div className="max-w-3xl mx-auto w-full space-y-4 relative">
             <div className="absolute left-[31px] top-6 bottom-6 w-0.5 bg-[#006241]/20 -z-0"></div>
             
@@ -199,39 +223,33 @@ export const AdminWorkflow = () => {
                </div>
             </div>
 
-            {/* Node 1 */}
-            <div className="flex gap-6 items-center relative z-10 group">
-               <div className="w-16 h-16 bg-[#006241] text-white rounded-full flex items-center justify-center shrink-0 shadow border-4 border-gray-50 cursor-grab active:cursor-grabbing">
-                  <Network size={20} />
-               </div>
-               <div className="bg-white p-5 rounded border border-[#006241] shadow-sm flex-1 flex justify-between items-center group-hover:border-[#006241] transition-colors relative">
-                  <div className="absolute -left-[4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-[#006241] rounded-r"></div>
-                  <div>
-                    <h3 className="font-bold text-[#1E3932] mb-1 flex items-center gap-2">EHS与安保联合审批 <span className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 uppercase tracking-wider font-bold">高风险必备</span></h3>
-                    <p className="text-xs text-gray-500">评估风险等级并给出控制措施（会签）</p>
-                  </div>
-                  <div className="flex gap-2">
-                     <button className="p-1.5 text-gray-400 hover:text-[#006241] bg-gray-50 rounded"><Settings size={16} /></button>
-                  </div>
-               </div>
-            </div>
-
-            {/* Node 2 */}
-            <div className="flex gap-6 items-center relative z-10 group">
-               <div className="w-16 h-16 bg-[#006241] text-white rounded-full flex items-center justify-center shrink-0 shadow border-4 border-gray-50 cursor-grab active:cursor-grabbing">
-                  <Network size={20} />
-               </div>
-               <div className="bg-white p-5 rounded border border-gray-200 shadow-sm flex-1 flex justify-between items-center group-hover:border-[#006241] transition-colors">
-                  <div>
-                    <h3 className="font-bold text-[#1E3932] mb-1">供应商录入资料</h3>
-                    <p className="text-xs text-gray-500">通过短链接补充作业人员、特种资质及车辆</p>
-                  </div>
-                  <div className="flex gap-2">
-                     <button className="p-1.5 text-gray-400 hover:text-[#006241] bg-gray-50 rounded"><Settings size={16} /></button>
-                     <button className="p-1.5 text-gray-400 hover:text-red-500 bg-gray-50 rounded"><Trash2 size={16} /></button>
-                  </div>
-               </div>
-            </div>
+            {/* Dynamic Nodes */}
+            {nodes.map((node, index) => (
+              <div key={node.id} className="flex gap-6 items-center relative z-10 group">
+                 <div className="w-16 h-16 bg-[#006241] text-white rounded-full flex items-center justify-center shrink-0 shadow border-4 border-gray-50 cursor-grab active:cursor-grabbing">
+                    <Network size={20} />
+                 </div>
+                 <div className="bg-white p-5 rounded border border-gray-200 shadow-sm flex-1 flex justify-between items-center hover:border-[#006241] transition-colors relative">
+                    {index === 0 && <div className="absolute -left-[4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-[#006241] rounded-r"></div>}
+                    <div>
+                      <h3 className="font-bold text-[#1E3932] mb-1 flex items-center gap-2">
+                        {node.title}
+                        {node.tags.map((tag: string, i: number) => (
+                          <span key={i} className="text-[10px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 uppercase tracking-wider font-bold">{tag}</span>
+                        ))}
+                      </h3>
+                      <p className="text-xs text-gray-500 mb-2">{node.desc}</p>
+                      <div className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded inline-flex items-center gap-1 font-bold">
+                        <UserCog size={12} /> {node.approver}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                       <button onClick={() => setEditingNode(node)} className="p-1.5 text-gray-400 hover:text-[#006241] bg-gray-50 rounded"><Settings size={16} /></button>
+                       <button onClick={() => handleDeleteNode(node.id)} className="p-1.5 text-gray-400 hover:text-red-500 bg-gray-50 rounded"><Trash2 size={16} /></button>
+                    </div>
+                 </div>
+              </div>
+            ))}
 
             {/* End Node */}
             <div className="flex gap-6 items-center relative z-10">
@@ -246,14 +264,49 @@ export const AdminWorkflow = () => {
                </div>
             </div>
 
-            <div className="pl-24 pt-4 relative z-10">
-               <button className="flex items-center gap-2 text-[#006241] font-bold text-sm bg-white border border-dashed border-[#006241] px-4 py-2 rounded hover:bg-[#E8F0ED] transition-colors">
+            <div className="pl-24 pt-4 relative z-10 pb-10">
+               <button onClick={handleAddNode} className="flex items-center gap-2 text-[#006241] font-bold text-sm bg-white border border-dashed border-[#006241] px-4 py-2 rounded hover:bg-[#E8F0ED] transition-colors shadow-sm">
                  <Plus size={16} /> 插入新节点
                </button>
             </div>
          </div>
-         
       </div>
+
+      {editingNode && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex justify-end">
+          <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h3 className="font-bold text-[#1E3932] flex items-center gap-2"><Settings size={18} /> 节点设置</h3>
+              <button onClick={() => setEditingNode(null)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-5">
+               <form id="nodeForm" onSubmit={handleSaveNode} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase">节点名称 <span className="text-red-500">*</span></label>
+                    <input required type="text" value={editingNode.title} onChange={e => setEditingNode({...editingNode, title: e.target.value})} className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase">节点描述</label>
+                    <textarea value={editingNode.desc} onChange={e => setEditingNode({...editingNode, desc: e.target.value})} className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241]" rows={3} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase">审批人/角色 <span className="text-red-500">*</span></label>
+                    <input required type="text" value={editingNode.approver} onChange={e => setEditingNode({...editingNode, approver: e.target.value})} placeholder="例如: 部门经理, EHS专员" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241]" />
+                    <p className="text-[10px] text-gray-400 mt-1">可输入指定人员姓名或角色名称</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase">标签设置</label>
+                    <input type="text" value={editingNode.tags.join(', ')} onChange={e => setEditingNode({...editingNode, tags: e.target.value.split(',').map((t: string) => t.trim()).filter((t: string) => t)})} placeholder="多个标签以逗号分隔，如: 高风险必备" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241]" />
+                  </div>
+               </form>
+            </div>
+            <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+              <button onClick={() => setEditingNode(null)} className="px-4 py-2 border border-gray-300 rounded text-sm font-bold text-gray-600 bg-white hover:bg-gray-50">取消</button>
+              <button type="submit" form="nodeForm" className="px-4 py-2 bg-[#006241] text-white rounded text-sm font-bold hover:bg-[#00754A] shadow">保存设置</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

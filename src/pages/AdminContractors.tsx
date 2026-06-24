@@ -192,3 +192,90 @@ export const AdminContractorDetail = () => {
     </div>
   );
 }
+
+export const AdminNewContractor = () => {
+  const { setView } = useAppContext();
+  const [formData, setFormData] = useState({
+    name: '',
+    creditCode: '',
+    type: 'LONG_TERM',
+    scope: '',
+    contactName: '',
+    contactPhone: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('承包商创建成功 (模拟)');
+    setView('ADMIN_CONTRACTORS');
+  };
+
+  return (
+    <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300 flex flex-col h-full">
+      <div className="flex justify-between items-center border-b border-gray-200 pb-4 shrink-0">
+        <div className="flex items-center gap-4">
+          <button onClick={() => setView('ADMIN_CONTRACTORS')} className="text-gray-500 hover:text-[#006241] text-sm flex items-center gap-1 group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-180 group-hover:-translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg> 返回
+          </button>
+          <h2 className="text-xl font-bold text-[#1E3932]">新增承包商</h2>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto pb-6">
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-3xl">
+          <h3 className="text-sm font-bold text-[#1E3932] mb-6 uppercase tracking-wider flex items-center">
+             <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
+             基本信息
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="col-span-1 md:col-span-2">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">公司全称 <span className="text-red-500">*</span></label>
+              <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="请输入营业执照上的企业全称" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">统一社会信用代码 <span className="text-red-500">*</span></label>
+              <input required type="text" value={formData.creditCode} onChange={e => setFormData({...formData, creditCode: e.target.value})} placeholder="18位统一社会信用代码" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">承包商类型 <span className="text-red-500">*</span></label>
+              <select required value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]">
+                <option value="LONG_TERM">长期服务承包商 (年度)</option>
+                <option value="SHORT_TERM">短期/临时承包商 (单次)</option>
+              </select>
+            </div>
+
+            <div className="col-span-1 md:col-span-2">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">服务范围说明</label>
+              <textarea value={formData.scope} onChange={e => setFormData({...formData, scope: e.target.value})} placeholder="简要描述该承包商主要提供的服务或施工内容" rows={3} className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]" />
+            </div>
+          </div>
+
+          <h3 className="text-sm font-bold text-[#1E3932] mb-6 mt-8 uppercase tracking-wider flex items-center">
+             <span className="w-2 h-2 bg-[#006241] rounded-full mr-2"></span>
+             主联系人信息
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">姓名 <span className="text-red-500">*</span></label>
+              <input required type="text" value={formData.contactName} onChange={e => setFormData({...formData, contactName: e.target.value})} placeholder="业务接口人姓名" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]" />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">手机号码 <span className="text-red-500">*</span></label>
+              <input required type="tel" value={formData.contactPhone} onChange={e => setFormData({...formData, contactPhone: e.target.value})} placeholder="接收通知的手机号" className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-[#006241] focus:ring-1 focus:ring-[#006241]" />
+            </div>
+          </div>
+
+          <div className="mt-10 flex justify-end gap-3 pt-6 border-t border-gray-100">
+             <button type="button" onClick={() => setView('ADMIN_CONTRACTORS')} className="px-6 py-2 text-sm font-bold text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors">取消</button>
+             <button type="submit" className="px-6 py-2 text-sm font-bold text-white bg-[#006241] rounded shadow-sm hover:bg-[#00754A] transition-colors">创建承包商档案</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

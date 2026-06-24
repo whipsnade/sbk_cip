@@ -3,7 +3,7 @@ import { AppProvider, useAppContext } from './context/AppContext';
 import { LoginView } from './pages/Login';
 import { AdminLayout, MobileLayout } from './components/Layouts';
 import { AdminDashboard, AdminOrderList, AdminNewOrder, AdminOrderDetail, AdminReports } from './pages/Admin';
-import { AdminContractors, AdminContractorDetail } from './pages/AdminContractors';
+import { AdminContractors, AdminContractorDetail, AdminNewContractor } from './pages/AdminContractors';
 import { AdminOrg, AdminRoles, AdminWorkflow } from './pages/SettingsPages';
 import { ApproverList } from './pages/Approver';
 import { SupplierSmsLink, SupplierForm, SupplierSuccess, SupplierMobileHome, SupplierMobilePersonnel, SupplierMobileVehicles } from './pages/Supplier';
@@ -39,6 +39,7 @@ function AppContent() {
       {view === 'ADMIN_DASHBOARD' && <AdminDashboard />}
       {view === 'ADMIN_CONTRACTORS' && <AdminContractors />}
       {view === 'ADMIN_CONTRACTOR_DETAIL' && <AdminContractorDetail />}
+      {view === 'ADMIN_NEW_CONTRACTOR' && <AdminNewContractor />}
       {view === 'ADMIN_ORDER_LIST' && <AdminOrderList />}
       {view === 'ADMIN_NEW_ORDER' && <AdminNewOrder />}
       {view === 'ADMIN_ORDER_DETAIL' && <AdminOrderDetail />}
