@@ -515,7 +515,7 @@ export const SupplierForm = () => {
         <p className="text-gray-300 bg-black/20 px-3 py-1 inline-block rounded text-xs font-bold uppercase tracking-wider">{targetOrder?.content}</p>
       </div>
       
-      <form onSubmit={handleSubmit} className="-mt-6 px-4 space-y-5 relative z-10">
+      <form onSubmit={handleSubmit} className="-mt-6 px-4 pb-24 space-y-5 relative z-10">
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
            <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
              <h3 className="font-bold flex items-center gap-2 text-[#1E3932] uppercase tracking-wider text-sm">

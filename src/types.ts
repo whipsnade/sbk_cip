@@ -1,4 +1,4 @@
-export type Role = 'BUSINESS' | 'APPROVER' | 'SUPPLIER' | 'GUARD' | 'SUPPLIER_WEB';
+export type Role = 'BUSINESS' | 'APPROVER' | 'SUPPLIER' | 'GUARD' | 'SUPPLIER_WEB' | 'APPROVER_MOBILE' | 'EVALUATOR_MOBILE';
 
 export type ContractorStatus = 'DRAFT' | 'PENDING_INFO' | 'PENDING_REVIEW' | 'PENDING_PD' | 'QUALIFIED' | 'NEEDS_IMPROVEMENT' | 'RISK' | 'INACTIVE';
 export type ContractorType = 'LONG_TERM' | 'SHORT_TERM';
@@ -65,3 +65,25 @@ export interface Order {
   inviteCode?: string;
   rejectReason?: string;
 }
+
+export interface AreaMapping {
+  id: string;
+  managerName: string;
+  managerPhone: string;
+  areaName: string;
+}
+
+export interface Evaluation {
+  id: string;
+  orderId: string;
+  orderContent: string;
+  supplierId: string;
+  supplierName: string;
+  areaName: string;
+  evaluator: string; // manager name
+  score: number; // 1-5
+  complaint: string;
+  status: 'PENDING_APPROVER' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+

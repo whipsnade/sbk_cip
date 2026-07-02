@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
-import { LayoutDashboard, ClipboardList, Users, ShieldCheck, LogOut, CheckSquare, FileText, UserCog, Building, Network } from 'lucide-react';
+import { LayoutDashboard, ClipboardList, Users, ShieldCheck, LogOut, CheckSquare, FileText, UserCog, Building, Network, MapPin } from 'lucide-react';
 
 export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const { role, setRole, setView, view } = useAppContext();
@@ -19,10 +19,12 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
       { id: 'ADMIN_ORG', label: '组织架构', icon: Building },
       { id: 'ADMIN_ROLES', label: '权限设置', icon: UserCog },
       { id: 'ADMIN_WORKFLOW', label: '审批工作流', icon: Network },
+      { id: 'ADMIN_AREA_CONFIG', label: '区域与评价管理', icon: MapPin },
     ],
     APPROVER: [
       { id: 'APPROVER_LIST', label: '审批中心', icon: CheckSquare },
       { id: 'ADMIN_DASHBOARD', label: '仪表盘', icon: LayoutDashboard },
+      { id: 'ADMIN_AREA_CONFIG', label: '区域与评价管理', icon: MapPin },
     ],
     GUARD: [
       { id: 'GUARD_HOME', label: '门卫核验', icon: ShieldCheck },
@@ -35,7 +37,7 @@ export const AdminLayout: React.FC<{children: React.ReactNode}> = ({ children })
     ]
   };
 
-  const currentNav = role && role !== 'SUPPLIER' ? navItems[role] : [];
+  const currentNav = role && role !== 'SUPPLIER' && role !== 'APPROVER_MOBILE' && role !== 'EVALUATOR_MOBILE' ? (navItems as any)[role] : [];
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-[#F2F0EB] font-sans text-[#1E3932]">

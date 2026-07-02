@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Order, Role, Contractor } from '../types';
+import { Order, Role, Contractor, AreaMapping, Evaluation } from '../types';
 
 interface AppState {
   role: Role | null;
@@ -8,14 +8,21 @@ interface AppState {
   contractors: Contractor[];
   currentOrderId: string | null;
   currentContractorId: string | null;
+  areaMappings: AreaMapping[];
+  evaluations: Evaluation[];
   setRole: (role: Role | null) => void;
   setView: (view: string) => void;
   setOrders: (orders: Order[]) => void;
   setContractors: (contractors: Contractor[]) => void;
   setCurrentOrderId: (id: string | null) => void;
   setCurrentContractorId: (id: string | null) => void;
+  setAreaMappings: (mappings: AreaMapping[]) => void;
+  setEvaluations: (evaluations: Evaluation[]) => void;
   updateOrder: (id: string, updates: Partial<Order>) => void;
   updateContractor: (id: string, updates: Partial<Contractor>) => void;
+  addEvaluation: (evaluation: Omit<Evaluation, 'id' | 'status' | 'createdAt'>) => void;
+  approveEvaluation: (id: string) => void;
+  rejectEvaluation: (id: string) => void;
 }
 
 const mockContractors: Contractor[] = [
@@ -130,6 +137,28 @@ const mockOrders: Order[] = [
   }
 ];
 
+const mockAreaMappings: AreaMapping[] = [
+  { id: '1', managerName: '张明', managerPhone: '13800138001', areaName: '烘焙车间1线' },
+  { id: '2', managerName: '陈杰', managerPhone: '13800138002', areaName: '配电室' },
+  { id: '3', managerName: '林峰', managerPhone: '13800138003', areaName: '成品仓库' }
+];
+
+const mockEvaluations: Evaluation[] = [
+  {
+    id: 'eval-1',
+    orderId: '2023102305',
+    orderContent: '库房地坪漆修补',
+    supplierId: '20231002',
+    supplierName: '星建装饰工程有限公司',
+    areaName: '成品仓库',
+    evaluator: '林峰',
+    score: 4,
+    complaint: '施工基本按时完成，但现场垃圾未完全清理干净。',
+    status: 'APPROVED',
+    createdAt: '2023-10-24 16:00'
+  }
+];
+
 export const AppContext = createContext<AppState>({} as AppState);
 
 export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
@@ -139,6 +168,8 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
   const [contractors, setContractors] = useState<Contractor[]>(mockContractors);
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [currentContractorId, setCurrentContractorId] = useState<string | null>(null);
+  const [areaMappings, setAreaMappings] = useState<AreaMapping[]>(mockAreaMappings);
+  const [evaluations, setEvaluations] = useState<Evaluation[]>(mockEvaluations);
 
   const updateOrder = (id: string, updates: Partial<Order>) => {
     setOrders(orders.map(o => o.id === id ? { ...o, ...updates } : o));
@@ -148,11 +179,42 @@ export const AppProvider: React.FC<{children: React.ReactNode}> = ({ children })
     setContractors(contractors.map(c => c.id === id ? { ...c, ...updates } : c));
   };
 
+  const addEvaluation = (evaluation: Omit<Evaluation, 'id' | 'status' | 'createdAt'>) => {
+    const newEval: Evaluation = {
+      ...evaluation,
+      id: `eval-${Date.now()}`,
+      status: 'PENDING_APPROVER',
+      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+    };
+    setEvaluations(prev => [newEval, ...prev]);
+  };
+
+  const approveEvaluation = (id: string) => {
+    setEvaluations(prev => prev.map(ev => {
+      if (ev.id === id) {
+        // Find associated contractor and update healthIndex
+        const contractor = contractors.find(c => c.id === ev.supplierId);
+        if (contractor) {
+          const currentScore = contractor.healthIndex;
+          const reviewScore = ev.score * 20; // 1-5 maps to 20-100
+          const newScore = Math.max(0, Math.min(100, Math.round((currentScore * 4 + reviewScore) / 5)));
+          setContractors(prevC => prevC.map(c => c.id === ev.supplierId ? { ...c, healthIndex: newScore } : c));
+        }
+        return { ...ev, status: 'APPROVED' };
+      }
+      return ev;
+    }));
+  };
+
+  const rejectEvaluation = (id: string) => {
+    setEvaluations(prev => prev.map(ev => ev.id === id ? { ...ev, status: 'REJECTED' } : ev));
+  };
+
   return (
     <AppContext.Provider value={{ 
-      role, view, orders, contractors, currentOrderId, currentContractorId, 
-      setRole, setView, setOrders, setContractors, setCurrentOrderId, setCurrentContractorId, 
-      updateOrder, updateContractor 
+      role, view, orders, contractors, currentOrderId, currentContractorId, areaMappings, evaluations,
+      setRole, setView, setOrders, setContractors, setCurrentOrderId, setCurrentContractorId, setAreaMappings, setEvaluations,
+      updateOrder, updateContractor, addEvaluation, approveEvaluation, rejectEvaluation
     }}>
       {children}
     </AppContext.Provider>

@@ -9,6 +9,9 @@ import { ApproverList } from './pages/Approver';
 import { SupplierSmsLink, SupplierForm, SupplierSuccess, SupplierMobileHome, SupplierMobilePersonnel, SupplierMobileVehicles } from './pages/Supplier';
 import { SupplierWebCompany, SupplierWebPersonnel, SupplierWebApprovals } from './pages/SupplierWeb';
 import { GuardHome, GuardVerify, GuardExit, GuardExitHome } from './pages/Guard';
+import { AdminAreaConfig } from './pages/AdminAreaConfig';
+import { ApproverMobile } from './pages/ApproverMobile';
+import { EvaluatorMobile } from './pages/EvaluatorMobile';
 
 function AppContent() {
   const { view, role } = useAppContext();
@@ -34,6 +37,22 @@ function AppContent() {
     );
   }
 
+  if (role === 'APPROVER_MOBILE') {
+    return (
+      <MobileLayout>
+        <ApproverMobile />
+      </MobileLayout>
+    );
+  }
+
+  if (role === 'EVALUATOR_MOBILE') {
+    return (
+      <MobileLayout>
+        <EvaluatorMobile />
+      </MobileLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       {view === 'ADMIN_DASHBOARD' && <AdminDashboard />}
@@ -47,6 +66,7 @@ function AppContent() {
       {view === 'ADMIN_ORG' && <AdminOrg />}
       {view === 'ADMIN_ROLES' && <AdminRoles />}
       {view === 'ADMIN_WORKFLOW' && <AdminWorkflow />}
+      {view === 'ADMIN_AREA_CONFIG' && <AdminAreaConfig />}
       
       {view === 'APPROVER_LIST' && <ApproverList />}
       
